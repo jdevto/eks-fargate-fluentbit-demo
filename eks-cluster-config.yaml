@@ -1,0 +1,16 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: fluentbit
+  region: ap-southeast-1
+  version: '1.32'
+iam:
+  withOIDC: true
+fargateProfiles:
+  - name: defaultfp
+    selectors:
+      - namespace: demo
+      - namespace: kube-system
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["*"]
