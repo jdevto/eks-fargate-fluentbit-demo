@@ -12,7 +12,39 @@ This guide provides clear steps to configure Fluent Bit for logging in an Amazon
 
 ---
 
-### Step 1: Create Fluent Bit Configuration
+## Step 1: Deploy the EKS Cluster
+
+Before setting up Fluent Bit, create an EKS cluster with Fargate support using `eksctl`.
+
+Create a file called `eks-cluster-config.yaml`:
+
+```yaml
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: fluentbit-cluster
+  region: ap-southeast-1
+  version: "1.32"
+
+fargateProfiles:
+  - name: default
+    selectors:
+      - namespace: demo
+      - namespace: aws-observability
+```
+
+Then deploy the cluster:
+
+```bash
+eksctl create cluster --config-file eks-cluster-config.yaml
+```
+
+> ⚠️ This may take several minutes. Once complete, `kubectl` will automatically be configured to use the new cluster.
+
+---
+
+### Step 2: Create Fluent Bit Configuration
 
 Create a file called `fluentbit-config.yaml` with the following content:
 
@@ -64,7 +96,7 @@ kubectl -n aws-observability get configmap aws-logging -o yaml
 
 ---
 
-### Step 2: Set Up IAM Permissions
+### Step 3: Set Up IAM Permissions
 
 Download the required IAM policy:
 
@@ -96,7 +128,7 @@ Replace:
 
 ---
 
-### Step 3: Deploy Test Application
+### Step 4: Deploy Test Application
 
 Create a file called `logger-server.yaml`:
 
@@ -144,7 +176,7 @@ Exposes the deployment as a service within the `demo` namespace.
 
 ---
 
-### Step 4: Verify Logging
+### Step 5: Verify Logging
 
 > 📌 **Make sure Fluent Bit is deployed and running in `aws-observability` before proceeding:**
 
@@ -186,7 +218,7 @@ curl localhost:8080
 
 ---
 
-### Step 5: Check CloudWatch Logs
+### Step 6: Check CloudWatch Logs
 
 Logs are available in CloudWatch under the group:
 
